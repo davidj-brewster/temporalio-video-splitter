@@ -79,7 +79,7 @@ Monitor workflow execution through:
 
 ### State Flow
 
-```
+```mermaid
 stateDiagram-v2
     [*] --> StartWorkflow
     StartWorkflow --> AnalyzeVideo
@@ -115,7 +115,7 @@ stateDiagram-v2
 
 ### Architecture
 
-```
+```mermaid
 graph TD
     subgraph Client
         SW[Start Workflow<br/>start_workflow.py]
