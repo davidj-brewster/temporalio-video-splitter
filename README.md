@@ -1,6 +1,7 @@
 # Temporal Video Processing 
 
 A demonstration of using Temporal.io for orchestrating video processing workflows. This project shows how to structure long-running video processing tasks using Temporal's workflow engine.
+Actually had started on this due to being stuck on a more complicated project and needed to figure how to get the basic interactions working between temporal IO components (Workflows, Workers and Activities).
 
 ## Architecture
 
@@ -76,66 +77,59 @@ Monitor workflow execution through:
 
 ## Some diagrams (thanks Claude)
 
-### State diagram
+### State Flow
 
-```mermaid
-
+```
 stateDiagram-v2
-    [*] --> StartWorkflow: Launch
+    [*] --> StartWorkflow
+    StartWorkflow --> AnalyzeVideo
     
-    StartWorkflow --> AnalyzeVideo: Execute Activity 1
     note right of AnalyzeVideo
-        Extract video metadata:
-        - dimensions
-        - fps
-        - duration
+        Extract metadata:
+        dimensions, fps, duration
     end note
     
-    AnalyzeVideo --> ExtractFrames: Execute Activity 2
+    AnalyzeVideo --> ExtractFrames
     note right of ExtractFrames
-        - Read video frames
-        - Save to disk
-        - Report progress
+        Read and save frames
+        Report progress
     end note
     
-    ExtractFrames --> ProcessFrames: Execute Activity 3
+    ExtractFrames --> ProcessFrames
     note right of ProcessFrames
-        - Apply processing
-        - Save results
-        - Track progress
+        Process frames
+        Save results
     end note
     
-    ProcessFrames --> Complete: Return Results
+    ProcessFrames --> Complete
     Complete --> [*]
     
-    state RetryLoop <<fork>>
-        AnalyzeVideo --> RetryLoop: Failure
-        ExtractFrames --> RetryLoop: Failure
-        ProcessFrames --> RetryLoop: Failure
-        RetryLoop --> [*]: Max Retries
-        RetryLoop --> AnalyzeVideo: Retry
-        RetryLoop --> ExtractFrames: Retry
-        RetryLoop --> ProcessFrames: Retry
-    end state
+    AnalyzeVideo --> Retry: Failure
+    ExtractFrames --> Retry: Failure
+    ProcessFrames --> Retry: Failure
+    Retry --> [*]: Max Retries
+    Retry --> AnalyzeVideo
+    Retry --> ExtractFrames
+    Retry --> ProcessFrames
 ```
 
 ### Architecture
 
-```mermaid
-flowchart TB
+```
+graph TD
     subgraph Client
-        SW[Start Workflow\nstart_workflow.py]
+        SW[Start Workflow<br/>start_workflow.py]
     end
     
     subgraph "Temporal Server"
         TS[Temporal Service]
-        TQ[Task Queue:\nvideo-processing-queue]
+        TQ[Task Queue:<br/>video-processing-queue]
     end
     
     subgraph "Worker Node"
-        W[Worker Process\nworker.py]
-        ACT[Activities\nactivities.py]
-        WF[Workflow Definition\nworkflows.py]
+        W[Worker Process<br/>worker.py]
+        ACT[Activities<br/>activities.py]
+        WF[Workflow Definition<br/>workflows.py]
     end
     
     SW -->|1. Start Workflow| TS
@@ -147,4 +141,4 @@ flowchart TB
     ACT -->|7. Results| W
     W -->|8. Report Status| TS
     TS -->|9. Return Results| SW
-```
+```	
