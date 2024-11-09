@@ -74,3 +74,77 @@ Monitor workflow execution through:
 - Temporal Web UI
 - Worker logs and temporal server log
 
+## Some diagrams (thanks Claude)
+
+### State diagram
+
+```mermaid
+
+stateDiagram-v2
+    [*] --> StartWorkflow: Launch
+    
+    StartWorkflow --> AnalyzeVideo: Execute Activity 1
+    note right of AnalyzeVideo
+        Extract video metadata:
+        - dimensions
+        - fps
+        - duration
+    end note
+    
+    AnalyzeVideo --> ExtractFrames: Execute Activity 2
+    note right of ExtractFrames
+        - Read video frames
+        - Save to disk
+        - Report progress
+    end note
+    
+    ExtractFrames --> ProcessFrames: Execute Activity 3
+    note right of ProcessFrames
+        - Apply processing
+        - Save results
+        - Track progress
+    end note
+    
+    ProcessFrames --> Complete: Return Results
+    Complete --> [*]
+    
+    state RetryLoop <<fork>>
+        AnalyzeVideo --> RetryLoop: Failure
+        ExtractFrames --> RetryLoop: Failure
+        ProcessFrames --> RetryLoop: Failure
+        RetryLoop --> [*]: Max Retries
+        RetryLoop --> AnalyzeVideo: Retry
+        RetryLoop --> ExtractFrames: Retry
+        RetryLoop --> ProcessFrames: Retry
+    end state
+```
+
+### Architecture
+
+```mermaid
+flowchart TB
+    subgraph Client
+        SW[Start Workflow\nstart_workflow.py]
+    end
+    
+    subgraph "Temporal Server"
+        TS[Temporal Service]
+        TQ[Task Queue:\nvideo-processing-queue]
+    end
+    
+    subgraph "Worker Node"
+        W[Worker Process\nworker.py]
+        ACT[Activities\nactivities.py]
+        WF[Workflow Definition\nworkflows.py]
+    end
+    
+    SW -->|1. Start Workflow| TS
+    TS -->|2. Queue Tasks| TQ
+    W -->|3. Poll for Tasks| TQ
+    TQ -->|4. Deliver Tasks| W
+    W -->|5. Execute| WF
+    WF -->|6. Call| ACT
+    ACT -->|7. Results| W
+    W -->|8. Report Status| TS
+    TS -->|9. Return Results| SW
+```
