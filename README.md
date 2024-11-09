@@ -1,24 +1,16 @@
 # Temporal Video Processing 
 
 A demonstration of using Temporal.io for orchestrating video processing workflows. This project shows how to structure long-running video processing tasks using Temporal's workflow engine.
-Actually had started on this due to being stuck on a more complicated project and needed to figure how to get the basic interactions working between temporal IO components (Workflows, Workers and Activities).
+Actually had started on this due to being stuck on a more complicated project and needed to figure how to get the basic interactions working between temporal IO components (Workflows, Workers and Activities) - essentially copied another project with the help of a "cloudy" copilot and figured this looks pretty nice after all.. :D 
 
 ## Architecture
 
-The system consists of three main components:
-1. Workflow Starter (start_workflow.py)
+Three main components like in every good Temporal.io implementation ;):
+1. Workflow init job (start_workflow.py)
 2. Worker Process (worker.py)
-3. Activity Definitions (activities.py)
+3. Activity Defn's (activities.py)
 
-## System Architecture Diagram
-
-The diagram above shows how the different components interact through the Temporal server.
-
-## Workflow Process
-
-The following diagram shows the video processing workflow sequence, including retry logic and state transitions.
-
-## Installation
+## Installation / usage
 
 1. Install dependencies:
 ```bash
@@ -27,17 +19,17 @@ pip install -r requirements.txt #or use uv ;)
 
 2. Ensure Temporal server is running at localhost:7233
 
-## Usage
-
-1. Start the worker process:
+3. Start the worker process:
 ```bash
 python worker.py
 ```
 
-2. In a separate terminal, start the workflow:
+4. In a separate terminal, start the workflow:
 ```bash
 python start_workflow.py
 ```
+
+The video location is hardcoded but who cares because nobody will see this. It's easy to change ;) 
 
 ## Components
 
